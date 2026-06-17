@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — Edoc Pharmacy</title>
+    <meta name="description" content="Admin login portal for Edoc Pharmacy Management System.">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="login-logo-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <span class="login-logo-text">Edoc Pharmacy</span>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 8px;">
+                <span class="login-role-badge admin">Administrator</span>
+            </div>
+            <p class="login-subtitle">Sign in to the Admin Dashboard to manage your pharmacy operations.</p>
+
+            <div class="login-error" id="login-error"></div>
+
+            <form class="login-form" id="admin-login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+                <div class="login-options">
+                    <label class="login-remember">
+                        <input type="checkbox" id="remember-me"> Remember me
+                    </label>
+                    <span class="login-forgot" id="forgot-password-btn">Forgot Password?</span>
+                </div>
+                <button type="submit" class="login-btn" id="login-submit-btn">
+                    Sign In to Admin Portal
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>Not an administrator? <a href="seller-login.html">Seller Login</a></p>
+                <p style="margin-top: 8px;"><a href="index.html">← Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Auth.seedPasswords();
+
+            // If already logged in as admin, redirect
+            const session = Auth.getSession();
+            if (session && session.role === 'admin') {
+                window.location.href = 'admin.html';
+                return;
+            }
+
+            const form = document.getElementById('admin-login-form');
+            const errorBox = document.getElementById('login-error');
+            const submitBtn = document.getElementById('login-submit-btn');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                errorBox.style.display = 'none';
+                submitBtn.textContent = 'Signing in...';
+                submitBtn.disabled = true;
+
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const remember = document.getElementById('remember-me').checked;
+
+                const result = await Auth.loginAdmin(username, password, remember);
+
+                if (result.success) {
+                    window.location.href = 'admin.html';
+                } else {
+                    errorBox.textContent = result.error;
+                    errorBox.style.display = 'block';
+                    submitBtn.textContent = 'Sign In to Admin Portal';
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Forgot password
+            document.getElementById('forgot-password-btn').addEventListener('click', async () => {
+                const username = document.getElementById('username').value.trim();
+                if (!username) {
+                    errorBox.textContent = 'Please enter your username first, then click Forgot Password.';
+                    errorBox.style.display = 'block';
+                    return;
+                }
+                const admin = window.DB.data.admins.find(a => a.username === username);
+                if (!admin) {
+                    errorBox.textContent = 'Username not found.';
+                    errorBox.style.display = 'block';
+                    return;
+                }
+                admin.passwordHash = await Auth.hashPassword('Admin@123');
+                admin.failedAttempts = 0;
+                admin.lockedUntil = null;
+                window.DB.save();
+                errorBox.style.display = 'none';
+                const successDiv = document.createElement('div');
+                successDiv.style.cssText = 'background: rgba(5,150,105,0.1); border: 1px solid rgba(5,150,105,0.3); color: #6ee7b7; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;';
+                successDiv.textContent = 'Password has been reset to: Admin@123';
+                form.insertBefore(successDiv, form.firstChild);
+                setTimeout(() => successDiv.remove(), 5000);
+            });
+        });
+    </script>
+</body>
+</html>

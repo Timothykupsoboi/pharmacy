@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Edoc Pharmacy</title>
+    <meta name="description" content="Admin dashboard for Edoc Pharmacy Enterprise Management System.">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-theme="light">
+    <div class="app-container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar" id="user-avatar">A</div>
+                <div class="profile-name" id="user-name">Administrator</div>
+                <div class="profile-email" id="user-email">admin@edocpharmacy.com</div>
+                <div class="profile-role-tag admin">ADMIN</div>
+                <button class="logout-btn" id="logout-button">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Log out
+                </button>
+            </div>
+            <nav class="nav-menu" id="sidebar-menu"></nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-wrapper">
+            <header class="header">
+                <div class="header-search">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" id="global-search-input" placeholder="Search medicines by barcode, name, or generic...">
+                </div>
+                <div class="header-controls">
+                    <button class="control-btn" id="theme-toggle" title="Toggle Dark/Light Mode">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="theme-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                    <button class="control-btn" id="notif-btn" title="Notifications">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        <span class="badge-count" id="notif-count" style="display:none;">0</span>
+                    </button>
+                    <div class="notif-dropdown" id="notif-dropdown">
+                        <div class="notif-header">
+                            <span class="notif-title">Notifications</span>
+                            <span class="notif-clear" id="notif-mark-read">Dismiss All</span>
+                        </div>
+                        <div class="notif-list" id="notif-items-list"></div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-body" id="main-content"></div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Drug Details Modal -->
+    <div class="modal-overlay" id="modal-drug-details">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h3 class="modal-title" id="drug-detail-title">Medicine Details</h3>
+                <div class="modal-close" onclick="closeModal('modal-drug-details')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div class="detail-tabs">
+                    <div class="detail-tab active" data-tab="tab-general">General</div>
+                    <div class="detail-tab" data-tab="tab-medical">Medical</div>
+                    <div class="detail-tab" data-tab="tab-inventory">Inventory</div>
+                    <div class="detail-tab" data-tab="tab-financial">Financial</div>
+                </div>
+                <div class="tab-pane active" id="tab-general"><div class="detail-grid" id="detail-gen-grid"></div></div>
+                <div class="tab-pane" id="tab-medical"><div class="detail-grid" id="detail-med-grid"></div></div>
+                <div class="tab-pane" id="tab-inventory"><div class="detail-grid" id="detail-inv-grid"></div></div>
+                <div class="tab-pane" id="tab-financial"><div class="detail-grid" id="detail-fin-grid"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drug Form Modal -->
+    <div class="modal-overlay" id="modal-drug-form">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h3 class="modal-title" id="drug-form-title">Add New Medicine</h3>
+                <div class="modal-close" onclick="closeModal('modal-drug-form')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <form id="drug-editor-form">
+                    <input type="hidden" id="form-drug-id">
+                    <h4 style="margin-bottom:12px;color:var(--primary-light);border-bottom:1px solid var(--border);padding-bottom:4px;">General Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="drug_name">Drug Name *</label><input type="text" id="drug_name" required placeholder="e.g., Paracetamol 500mg"></div>
+                        <div class="form-group"><label for="barcode">Barcode *</label><input type="text" id="barcode" required placeholder="e.g., 8901030722419"></div>
+                        <div class="form-group"><label for="generic_name">Generic Name *</label><input type="text" id="generic_name" required placeholder="e.g., Acetaminophen"></div>
+                        <div class="form-group"><label for="brand_name">Brand Name *</label><input type="text" id="brand_name" required placeholder="e.g., Panadol"></div>
+                        <div class="form-group"><label for="category">Category *</label><select id="category" required></select></div>
+                        <div class="form-group"><label for="manufacturer">Manufacturer</label><input type="text" id="manufacturer" placeholder="e.g., GSK"></div>
+                        <div class="form-group"><label for="country">Country</label><input type="text" id="country" placeholder="e.g., UK"></div>
+                        <div class="form-group"><label for="prescription_required">Prescription Required</label><select id="prescription_required"><option value="false">No</option><option value="true">Yes</option></select></div>
+                    </div>
+                    <h4 style="margin:20px 0 12px;color:var(--primary-light);border-bottom:1px solid var(--border);padding-bottom:4px;">Medical Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="active_ingredient">Active Ingredient</label><input type="text" id="active_ingredient"></div>
+                        <div class="form-group"><label for="strength">Strength</label><input type="text" id="strength" placeholder="e.g., 500mg"></div>
+                        <div class="form-group"><label for="dosage_form">Dosage Form</label><input type="text" id="dosage_form" placeholder="e.g., Tablet"></div>
+                        <div class="form-group"><label for="route_admin">Route of Administration</label><input type="text" id="route_admin" placeholder="e.g., Oral"></div>
+                        <div class="form-group full-width"><label for="indications">Indications</label><textarea id="indications" placeholder="e.g., Fever, pain relief"></textarea></div>
+                        <div class="form-group"><label for="contraindications">Contraindications</label><input type="text" id="contraindications"></div>
+                        <div class="form-group"><label for="side_effects">Side Effects</label><input type="text" id="side_effects"></div>
+                        <div class="form-group"><label for="drug_interactions">Drug Interactions</label><input type="text" id="drug_interactions"></div>
+                        <div class="form-group"><label for="storage_instructions">Storage Instructions</label><input type="text" id="storage_instructions"></div>
+                    </div>
+                    <h4 style="margin:20px 0 12px;color:var(--primary-light);border-bottom:1px solid var(--border);padding-bottom:4px;">Inventory Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="batch_number">Batch Number</label><input type="text" id="batch_number"></div>
+                        <div class="form-group"><label for="manufacture_date">Manufacture Date</label><input type="date" id="manufacture_date"></div>
+                        <div class="form-group"><label for="expiry_date">Expiry Date *</label><input type="date" id="expiry_date" required></div>
+                        <div class="form-group"><label for="opening_stock">Opening Stock *</label><input type="number" id="opening_stock" min="0" required placeholder="0"></div>
+                        <div class="form-group"><label for="reorder_level">Reorder Level *</label><input type="number" id="reorder_level" min="0" required placeholder="20"></div>
+                        <div class="form-group"><label for="shelf_location">Shelf Location</label><input type="text" id="shelf_location" placeholder="e.g., A1-03"></div>
+                    </div>
+                    <h4 style="margin:20px 0 12px;color:var(--primary-light);border-bottom:1px solid var(--border);padding-bottom:4px;">Financial Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="cost_price">Cost Price *</label><input type="number" id="cost_price" min="0" step="0.01" required></div>
+                        <div class="form-group"><label for="selling_price">Selling Price *</label><input type="number" id="selling_price" min="0" step="0.01" required></div>
+                        <div class="form-group"><label for="tax_rate">Tax Rate (%) *</label><input type="number" id="tax_rate" min="0" max="100" required placeholder="5"></div>
+                        <div class="form-group"><label for="profit_margin">Profit Margin (%)</label><input type="text" id="profit_margin" readonly style="background:var(--bg-main);" placeholder="Auto"></div>
+                        <div class="form-group"><label for="discount_eligible">Discount Eligible</label><select id="discount_eligible"><option value="true">Yes</option><option value="false">No</option></select></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-drug-form')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Medicine</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Form Modal -->
+    <div class="modal-overlay" id="modal-stock-form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Purchased Stock</h3>
+                <div class="modal-close" onclick="closeModal('modal-stock-form')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <form id="stock-editor-form">
+                    <div class="form-group"><label for="stock-drug">Select Medicine *</label><select id="stock-drug" required></select></div>
+                    <div class="form-group"><label for="stock-supplier">Select Supplier *</label><select id="stock-supplier" required></select></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="stock-batch">Batch Number *</label><input type="text" id="stock-batch" required></div>
+                        <div class="form-group"><label for="stock-expiry">Expiry Date *</label><input type="date" id="stock-expiry" required></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="stock-qty">Quantity *</label><input type="number" id="stock-qty" min="1" required></div>
+                        <div class="form-group"><label for="stock-cost">Cost Price *</label><input type="number" id="stock-cost" min="0" step="0.01" required></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-stock-form')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Stock</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Price Change Modal -->
+    <div class="modal-overlay" id="modal-price-change">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="price-change-title">Change Price</h3>
+                <div class="modal-close" onclick="closeModal('modal-price-change')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <form id="price-change-form">
+                    <input type="hidden" id="pc-med-id">
+                    <input type="hidden" id="pc-field">
+                    <div class="form-group">
+                        <label>Current Value</label>
+                        <input type="text" id="pc-old-value" readonly style="background:var(--bg-main);">
+                    </div>
+                    <div class="form-group">
+                        <label for="pc-new-value">New Value *</label>
+                        <input type="number" id="pc-new-value" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pc-reason">Reason for Change *</label>
+                        <textarea id="pc-reason" required placeholder="e.g., Market price adjustment, supplier cost increase"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-price-change')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Apply Change</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescription Modal -->
+    <div class="modal-overlay" id="modal-presc-details">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Prescription Details</h3>
+                <div class="modal-close" onclick="closeModal('modal-presc-details')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <div id="presc-detail-content"></div>
+                <div class="form-group" style="margin-top:16px;">
+                    <label>Prescription Image</label>
+                    <div class="upload-placeholder" id="presc-upload-trigger">
+                        <p style="font-weight:600;font-size:14px;">Simulated Prescription Preview</p>
+                        <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Click to simulate upload</p>
+                    </div>
+                    <div id="presc-image-preview-box" style="display:none;margin-top:12px;background:var(--bg-main);padding:20px;border-radius:var(--radius-sm);font-family:monospace;font-size:12px;">
+                        <div style="font-weight:800;font-size:14px;color:var(--primary-light);margin-bottom:8px;">OFFICIAL DOCTOR PRESCRIPTION</div>
+                        <div>PATIENT: <span id="presc-img-patient"></span><br>
+                        MEDICINES: <span id="presc-img-meds"></span><br>
+                        DATE: <span id="presc-img-date"></span><br>
+                        DOCTOR SIGNATURE: DR. VERIFIED</div>
+                    </div>
+                </div>
+                <div class="form-actions" id="presc-actions" style="margin-top:24px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div class="modal-overlay" id="modal-receipt-print">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Invoice Receipt</h3>
+                <div class="modal-close" onclick="closeModal('modal-receipt-print')">&times;</div>
+            </div>
+            <div class="modal-body" style="background:var(--bg-main);padding:32px 16px;">
+                <div class="receipt-box" id="print-receipt-content"></div>
+                <div class="form-actions" style="justify-content:center;margin-top:24px;">
+                    <button class="btn btn-secondary" onclick="closeModal('modal-receipt-print')">Close</button>
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Dialog -->
+    <div class="modal-overlay" id="modal-alert-dialog">
+        <div class="modal-content cdialog-box">
+            <div class="modal-body cdialog-body">
+                <div class="cdialog-icon-wrapper" id="cdialog-alert-icon-wrap"></div>
+                <h3 class="cdialog-title" id="cdialog-alert-title">Notification</h3>
+                <p class="cdialog-message" id="cdialog-alert-message"></p>
+                <div class="cdialog-actions">
+                    <button class="btn btn-primary cdialog-btn-full" id="cdialog-alert-ok">Got It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Dialog -->
+    <div class="modal-overlay" id="modal-confirm-dialog">
+        <div class="modal-content cdialog-box">
+            <div class="modal-body cdialog-body">
+                <div class="cdialog-icon-wrapper cdialog-icon-warning" id="cdialog-confirm-icon-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 class="cdialog-title" id="cdialog-confirm-title">Are you sure?</h3>
+                <p class="cdialog-message" id="cdialog-confirm-message"></p>
+                <div class="cdialog-actions cdialog-actions-split">
+                    <button class="btn btn-secondary cdialog-btn-half" id="cdialog-confirm-cancel">Cancel</button>
+                    <button class="btn btn-danger cdialog-btn-half" id="cdialog-confirm-ok">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Prompt Dialog -->
+    <div class="modal-overlay" id="modal-prompt-dialog">
+        <div class="modal-content cdialog-box">
+            <div class="modal-body cdialog-body">
+                <div class="cdialog-icon-wrapper cdialog-icon-input">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </div>
+                <h3 class="cdialog-title" id="cdialog-prompt-title">Enter Value</h3>
+                <p class="cdialog-message" id="cdialog-prompt-message" style="display:none;"></p>
+                <div class="form-group" style="margin-top:12px;margin-bottom:4px;width:100%;text-align:left;">
+                    <label id="cdialog-prompt-label" for="cdialog-prompt-input">Value</label>
+                    <input type="text" id="cdialog-prompt-input">
+                </div>
+                <div class="cdialog-actions cdialog-actions-split">
+                    <button class="btn btn-secondary cdialog-btn-half" id="cdialog-prompt-cancel">Cancel</button>
+                    <button class="btn btn-primary cdialog-btn-half" id="cdialog-prompt-ok">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Form Dialog -->
+    <div class="modal-overlay" id="modal-form-dialog">
+        <div class="modal-content cdialog-box cdialog-box-wide">
+            <div class="modal-header">
+                <h3 class="modal-title" id="cdialog-form-title">Enter Details</h3>
+                <div class="modal-close" id="cdialog-form-close">&times;</div>
+            </div>
+            <div class="modal-body">
+                <p class="cdialog-message" id="cdialog-form-message" style="display:none;margin-bottom:16px;"></p>
+                <div class="form-grid" id="cdialog-form-fields"></div>
+                <div class="form-actions" style="margin-top:20px;">
+                    <button class="btn btn-secondary" id="cdialog-form-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="cdialog-form-ok">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin-app.js"></script>
+</body>
+</html>
