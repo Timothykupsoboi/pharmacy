@@ -9,48 +9,70 @@
 </head>
 <body>
     <div class="login-page">
-        <div class="login-card">
-            <div class="login-logo">
-                <div class="login-logo-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        <div class="login-bg-glow top-right"></div>
+        <div class="login-bg-glow bottom-left"></div>
+        
+        <a href="index.html" class="back-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            BACK TO HOME
+        </a>
+
+        <div class="login-container">
+            <div class="login-form-side">
+                <div class="login-indicator"></div>
+                <div class="login-header-text">EDOC PHARMACY</div>
+                <h1>Portal <span>Login</span></h1>
+                <p>Enter your administrator credentials to proceed.</p>
+
+                <div class="login-error" id="login-error"></div>
+
+                <form class="login-form" id="admin-login-form">
+                    <div class="form-group">
+                        <label for="username">Email or Username</label>
+                        <input type="text" id="username" placeholder="admin@edoc.med or username" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="login-submit-btn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                        Sign In
+                    </button>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 13px;">
+                        <label style="display: flex; align-items: center; gap: 5px; color: #64748B; cursor: pointer;">
+                            <input type="checkbox" id="remember-me" style="width: auto; padding: 0; margin: 0;"> Remember me
+                        </label>
+                        <a href="#" id="forgot-password-btn" style="color: #f97316; text-decoration: none; font-weight: 700;">Forgot Password?</a>
+                    </div>
+                </form>
+                <div style="text-align: center; margin-top: 30px; font-size: 13px; color: #64748B;">
+                    <p>Not an administrator? <a href="seller-login.html" style="color: #f97316; font-weight: 700; text-decoration: none;">Seller Login</a></p>
                 </div>
-                <span class="login-logo-text">Edoc Pharmacy</span>
             </div>
 
-            <div style="text-align: center; margin-bottom: 8px;">
-                <span class="login-role-badge admin">Administrator</span>
-            </div>
-            <p class="login-subtitle">Sign in to the Admin Dashboard to manage your pharmacy operations.</p>
-
-            <div class="login-error" id="login-error"></div>
-
-            <form class="login-form" id="admin-login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" placeholder="Enter your username" required autocomplete="username">
+            <div class="login-illustration-side">
+                <div class="illustration-frame">
+                    <img src="./img/team.png" alt="Clinical Team">
+                    <div class="badge-float secure">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        SECURE ACCESS
+                    </div>
+                    <div class="badge-float staff">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        VERIFIED STAFF
+                    </div>
+                    <div class="badge-float micro">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
-                </div>
-                <div class="login-options">
-                    <label class="login-remember">
-                        <input type="checkbox" id="remember-me"> Remember me
-                    </label>
-                    <span class="login-forgot" id="forgot-password-btn">Forgot Password?</span>
-                </div>
-                <button type="submit" class="login-btn" id="login-submit-btn">
-                    Sign In to Admin Portal
-                </button>
-            </form>
-
-            <div class="login-footer">
-                <p>Not an administrator? <a href="seller-login.html">Seller Login</a></p>
-                <p style="margin-top: 8px;"><a href="index.html">← Back to Home</a></p>
             </div>
         </div>
     </div>
 
+    <script src="js/supabase.js"></script>
     <script src="js/database.js"></script>
     <script src="js/auth.js"></script>
     <script>
