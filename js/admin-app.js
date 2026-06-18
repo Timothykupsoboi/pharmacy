@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!session) return;
 
     const db = window.DB;
-    const { showAlert, showConfirm, showPrompt, showFormDialog } = Dialog;
+    const { showAlert, showConfirm, showPrompt, showFormDialog, showToast } = Dialog;
 
     // ============================================================
     // APP STATE
@@ -762,7 +762,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             db.logAudit(session.userId, session.userName, 'admin', 'Sale Completed', `Invoice ${saleId} for ${customerName}. Total: ${db.data.settings.currency}${grandTotal.toFixed(2)}.`);
             this.cart = [];
             db.refreshNotifications(); this.drawNotifications();
-            this.showReceipt(saleId);
+            showToast('Sale completed successfully!', 'success');
         },
 
         showReceipt(saleId) {

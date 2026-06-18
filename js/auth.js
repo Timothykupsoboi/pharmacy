@@ -332,6 +332,23 @@ function showFormDialog(title, fields, message = '') {
 window.openModal = (id) => document.getElementById(id)?.classList.add('show');
 window.closeModal = (id) => document.getElementById(id)?.classList.remove('show');
 
+function showToast(message, type = 'success') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<div class="toast-icon">${ICON_SVG[type] || ICON_SVG.info}</div><div class="toast-message">${message}</div>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 // Export auth functions
 window.Auth = { hashPassword, seedPasswords, loginAdmin, loginSeller, getSession, requireAuth, logout, changePassword, resetSellerPassword };
-window.Dialog = { showAlert, showConfirm, showPrompt, showFormDialog };
+window.Dialog = { showAlert, showConfirm, showPrompt, showFormDialog, showToast };

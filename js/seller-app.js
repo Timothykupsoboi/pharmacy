@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!session) return;
 
     const db = window.DB;
-    const { showAlert, showConfirm, showPrompt, showFormDialog } = Dialog;
+    const { showAlert, showConfirm, showPrompt, showFormDialog, showToast } = Dialog;
 
     const App = {
         session,
@@ -152,11 +152,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             const customerSet = new Set(mySales.map(s => s.customerId).filter(Boolean));
 
             c.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title"><h2>Seller Dashboard</h2><p>Welcome, ${session.userName}. Process sales and manage customers.</p></div>
-                    <div class="page-actions"><button class="btn btn-primary" onclick="App.currentView='pos'; App.renderView();">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> New Sale
-                    </button></div>
+                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="font-weight: 800; color: var(--text-main); font-size: 28px; margin-bottom: 4px; font-family: var(--font-heading); letter-spacing: -0.5px;">Seller Dashboard</h2>
+                        <p style="color: var(--text-muted); font-size: 14px;">Process sales, manage customers, and check stock levels.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="App.currentView='pos'; App.renderView();">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px; display:inline-block; vertical-align:middle; margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> New Sale
+                        </button>
+                    </div>
+                </div>
+                <div style="width: 100%; height: 220px; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px; position: relative; box-shadow: var(--shadow-md);">
+                    <img src="img/banner.png" alt="Pharmacy Banner" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 20px;">
+                        <h3 style="color: white; font-family: var(--font-heading); margin: 0; font-size: 22px;">Welcome back, ${session.userName}</h3>
+                    </div>
                 </div>
                 <div class="kpi-grid">
                     ${this.kpi('My Sales Today', cur + revToday.toFixed(2), 'success', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z')}
@@ -384,7 +395,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             db.logAudit(session.userId, session.userName, 'seller', 'Sale Completed', `Invoice ${saleId} for ${customerName}. Total: ${db.data.settings.currency}${grandTotal.toFixed(2)}.`);
             this.cart = [];
             db.refreshNotifications(); this.drawNotifications();
-            this.showReceipt(saleId);
+            showToast('Sale completed successfully!', 'success');
         },
 
         showReceipt(saleId) {
