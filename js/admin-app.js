@@ -864,17 +864,111 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
 
         async addPrescription() {
-            const result = await showFormDialog('New Prescription', [
-                { key: 'patientName', label: 'Patient Name', required: true },
-                { key: 'doctorName', label: 'Doctor Name', required: true },
-                { key: 'doctorPhone', label: 'Doctor Phone' },
-                { key: 'medicines', label: 'Prescribed Medicines & Qty', required: true, fullWidth: true }
-            ]);
-            if (!result) return;
-            db.data.prescriptions.push({ id: generateId('RX'), patientName: result.patientName, doctorName: result.doctorName, doctorPhone: result.doctorPhone || '', dateIssued: getRelativeDate(0), medicines: result.medicines, status: 'Pending', verifiedBy: null, verifiedAt: null, imagePath: '', notes: '' });
-            db.save();
-            db.logAudit(session.userId, session.userName, 'admin', 'Prescription Added', `For ${result.patientName}.`);
-            this.renderView();
+            // Reset form inputs
+            document.getElementById('presc-add-patient').value = '';
+            document.getElementById('presc-add-doctor').value = '';
+            document.getElementById('presc-add-phone').value = '';
+            document.getElementById('presc-med-qty').value = '1';
+            
+            // Populate select dropdown
+            const medSelect = document.getElementById('presc-med-select');
+            // Show non-expired, available medicines
+            const activeMeds = db.data.medicines.filter(m => db.getExpiryStatus(m.expiryDate).level > 0);
+            medSelect.innerHTML = activeMeds.map(m => `<option value="${m.id}">${m.drugName} (Stock: ${m.quantity})</option>`).join('');
+            
+            let prescriptionItems = [];
+            const updateItemsUI = () => {
+                const tbody = document.getElementById('presc-added-items-tbody');
+                tbody.innerHTML = '';
+                if (prescriptionItems.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No medicines added.</td></tr>';
+                    return;
+                }
+                prescriptionItems.forEach((item, idx) => {
+                    tbody.innerHTML += `<tr>
+                        <td><strong>${item.drugName}</strong></td>
+                        <td>${item.quantity}</td>
+                        <td><button type="button" class="btn btn-secondary btn-xs" style="color:var(--critical);" onclick="window.removePrescItem(${idx})">Remove</button></td>
+                    </tr>`;
+                });
+            };
+            
+            // Expose a temporary global callback for the remove button
+            window.removePrescItem = (idx) => {
+                prescriptionItems.splice(idx, 1);
+                updateItemsUI();
+            };
+            
+            // Set up button listeners
+            const addMedBtn = document.getElementById('presc-add-med-btn');
+            const saveBtn = document.getElementById('presc-save-btn');
+            
+            // Clean up old event listeners (by cloning the buttons)
+            const newAddMedBtn = addMedBtn.cloneNode(true);
+            const newSaveBtn = saveBtn.cloneNode(true);
+            addMedBtn.parentNode.replaceChild(newAddMedBtn, addMedBtn);
+            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+            
+            newAddMedBtn.addEventListener('click', () => {
+                const medId = medSelect.value;
+                const qty = parseInt(document.getElementById('presc-med-qty').value) || 0;
+                if (!medId || qty <= 0) return;
+                const med = db.data.medicines.find(m => m.id === medId);
+                if (!med) return;
+                
+                // Check if already in list
+                const existing = prescriptionItems.find(item => item.medicineId === medId);
+                if (existing) {
+                    existing.quantity += qty;
+                } else {
+                    prescriptionItems.push({ medicineId: medId, drugName: med.drugName, quantity: qty });
+                }
+                updateItemsUI();
+            });
+            
+            newSaveBtn.addEventListener('click', async () => {
+                const patientName = document.getElementById('presc-add-patient').value.trim();
+                const doctorName = document.getElementById('presc-add-doctor').value.trim();
+                const doctorPhone = document.getElementById('presc-add-phone').value.trim();
+                
+                if (!patientName || !doctorName) {
+                    await showAlert('Missing Information', 'Please fill in Patient Name and Doctor Name.', 'warning');
+                    return;
+                }
+                if (prescriptionItems.length === 0) {
+                    await showAlert('No Medicines', 'Please add at least one medicine to the prescription.', 'warning');
+                    return;
+                }
+                
+                const medicinesSummary = prescriptionItems.map(item => `${item.drugName} (qty: ${item.quantity})`).join(', ');
+                
+                db.data.prescriptions.push({
+                    id: generateId('RX'),
+                    patientName,
+                    doctorName,
+                    doctorPhone: doctorPhone || '',
+                    dateIssued: getRelativeDate(0),
+                    medicines: medicinesSummary,
+                    medicineItems: prescriptionItems,
+                    status: 'Pending',
+                    verifiedBy: null,
+                    verifiedAt: null,
+                    imagePath: '',
+                    notes: ''
+                });
+                db.save();
+                db.logAudit(session.userId, session.userName, 'admin', 'Prescription Added', `For ${patientName} with ${prescriptionItems.length} items.`);
+                
+                // Clean up global function
+                delete window.removePrescItem;
+                
+                closeModal('modal-prescription-add');
+                this.renderView();
+                showToast('Prescription created successfully!', 'success');
+            });
+            
+            updateItemsUI();
+            openModal('modal-prescription-add');
         },
 
         viewPrescription(id) {
@@ -916,13 +1010,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         async verifyPrescription(id) {
             const p = db.data.prescriptions.find(rx => rx.id === id);
             if (!p) return;
+            
+            // Deduct the quantity of each medicine from the pharmacy stock
+            if (p.medicineItems && p.medicineItems.length > 0) {
+                // Check if stock is available for all items
+                for (const item of p.medicineItems) {
+                    const med = db.data.medicines.find(m => m.id === item.medicineId);
+                    if (!med) {
+                        await showAlert('Error', `Medicine "${item.drugName}" was not found in the pharmacy.`, 'error');
+                        return;
+                    }
+                    if (med.quantity < item.quantity) {
+                        const ok = await showConfirm(
+                            'Insufficient Stock',
+                            `Only ${med.quantity} units of "${item.drugName}" are available, but ${item.quantity} are prescribed. Approve anyway?`,
+                            'Approve & Deduct'
+                        );
+                        if (!ok) return;
+                    }
+                }
+                
+                // Deduct stock
+                for (const item of p.medicineItems) {
+                    const med = db.data.medicines.find(m => m.id === item.medicineId);
+                    if (med) {
+                        const deductQty = Math.min(med.quantity, item.quantity);
+                        med.quantity -= deductQty;
+                        db.recalcStock(med.id);
+                    }
+                }
+            }
+            
             p.status = 'Verified';
             p.verifiedBy = session.userId;
             p.verifiedAt = getRelativeDate(0);
             db.save();
-            db.logAudit(session.userId, session.userName, 'admin', 'Prescription Verified', `Rx ${id} for ${p.patientName}.`);
+            db.logAudit(session.userId, session.userName, 'admin', 'Prescription Verified', `Rx ${id} verified. Deducted prescribed stock.`);
             closeModal('modal-presc-details');
-            await showAlert('Verified', `Prescription ${id} has been verified and approved.`, 'success');
+            db.refreshNotifications();
+            this.drawNotifications();
+            await showAlert('Verified & Deducted', `Prescription ${id} has been verified and approved. Prescribed medicines have been deducted from stock.`, 'success');
             this.renderView();
         },
 

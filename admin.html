@@ -227,6 +227,68 @@
         </div>
     </div>
 
+    <!-- Add Prescription Modal -->
+    <div class="modal-overlay" id="modal-prescription-add">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">New Prescription</h3>
+                <div class="modal-close" onclick="closeModal('modal-prescription-add')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <form id="presc-add-form" onsubmit="event.preventDefault();">
+                    <div class="form-group">
+                        <label for="presc-add-patient">Patient Name *</label>
+                        <input type="text" id="presc-add-patient" required>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="presc-add-doctor">Doctor Name *</label>
+                            <input type="text" id="presc-add-doctor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="presc-add-phone">Doctor Phone</label>
+                            <input type="text" id="presc-add-phone">
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin:20px 0 10px;color:var(--primary-light);border-bottom:1px solid var(--border);padding-bottom:4px;">Add Prescribed Medicines</h4>
+                    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:15px;">
+                        <div class="form-group" style="flex:2;margin:0;">
+                            <label for="presc-med-select">Select Medicine</label>
+                            <select id="presc-med-select" style="width:100%;"></select>
+                        </div>
+                        <div class="form-group" style="flex:1;margin:0;">
+                            <label for="presc-med-qty">Quantity</label>
+                            <input type="number" id="presc-med-qty" min="1" value="1" style="width:100%;">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="presc-add-med-btn" style="height:42px;">Add</button>
+                    </div>
+                    
+                    <div class="panel-card" style="margin-bottom:20px;box-shadow:none;border:1px solid var(--border);">
+                        <div class="table-responsive" style="max-height:150px;overflow-y:auto;">
+                            <table class="custom-table" style="font-size:13px;">
+                                <thead>
+                                    <tr>
+                                        <th>Medicine</th>
+                                        <th>Quantity</th>
+                                        <th style="width:60px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="presc-added-items-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-prescription-add')">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="presc-save-btn">Save Prescription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Receipt Modal -->
     <div class="modal-overlay" id="modal-receipt-print">
         <div class="modal-content">
