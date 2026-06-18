@@ -22,13 +22,20 @@ const PRECACHE_ASSETS = [
   './manifest.json'
 ];
 
-// Install Event - Pre-cache critical assets
+// Install Event - Pre-cache critical assets resiliently
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
+      .then(async cache => {
         console.log('[Service Worker] Pre-caching offline assets...');
-        return cache.addAll(PRECACHE_ASSETS);
+        const cachePromises = PRECACHE_ASSETS.map(async asset => {
+          try {
+            await cache.add(asset);
+          } catch (err) {
+            console.warn(`[Service Worker] Failed to pre-cache asset: ${asset}`, err);
+          }
+        });
+        await Promise.all(cachePromises);
       })
       .then(() => self.skipWaiting())
   );
@@ -67,7 +74,7 @@ self.addEventListener('fetch', event => {
   if (isPrecached) {
     // Cache-First, fallback to Network
     event.respondWith(
-      caches.match(event.request)
+      caches.match(event.request, { ignoreSearch: true })
         .then(cachedResponse => {
           if (cachedResponse) {
             return cachedResponse;

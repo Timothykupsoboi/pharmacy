@@ -2,7 +2,7 @@
   "name": "Edoc Pharmacy Management System",
   "short_name": "Edoc Pharmacy",
   "description": "Secure enterprise portal for Edoc Pharmacy administration, sales, and inventory management.",
-  "start_url": "/index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0f172a",
