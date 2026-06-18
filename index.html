@@ -6,6 +6,13 @@
     <title>Edoc Pharmacy — Enterprise Management System</title>
     <meta name="description" content="Edoc Pharmacy Enterprise Management System. Secure portal for administrators and sellers.">
     <link rel="stylesheet" href="index.css">
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Edoc Pharmacy">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
 </head>
 <body>
     <div class="landing-page">
@@ -69,5 +76,14 @@
             </div>
         </div>
     </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('ServiceWorker registered successfully:', reg.scope))
+                    .catch(err => console.error('ServiceWorker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>
