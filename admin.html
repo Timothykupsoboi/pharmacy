@@ -247,6 +247,78 @@
         </div>
     </div>
 
+    <!-- Checkout Confirmation Modal -->
+    <div class="modal-overlay" id="modal-checkout-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Sale & Invoice Preview</h3>
+                <div class="modal-close" onclick="closeModal('modal-checkout-confirm')">&times;</div>
+            </div>
+            <div class="modal-body" style="background:var(--bg-main);padding:32px 16px;">
+                <div style="text-align:center;margin-bottom:20px;font-size:14px;color:var(--text-main);font-weight:600;">
+                    Would you like to print a receipt for this transaction or just save it?
+                </div>
+                <div class="receipt-box" id="checkout-receipt-preview" style="margin-bottom:24px;"></div>
+                <div class="form-actions" style="justify-content:center;gap:12px;">
+                    <button class="btn btn-secondary" onclick="closeModal('modal-checkout-confirm')">Cancel</button>
+                    <button class="btn btn-success" id="checkout-btn-save-only">Just Save</button>
+                    <button class="btn btn-primary" id="checkout-btn-print-save">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print & Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Access Modal -->
+    <div class="modal-overlay" id="modal-manage-access">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Manage Staff Access</h3>
+                <div class="modal-close" onclick="closeModal('modal-manage-access')">&times;</div>
+            </div>
+            <div class="modal-body">
+                <form id="access-control-form">
+                    <input type="hidden" id="access-staff-id">
+                    <div style="margin-bottom: 20px;">
+                        <p>Configure dashboard permissions for <strong id="access-staff-name">Staff Name</strong> (<span id="access-staff-role" style="text-transform:uppercase;font-weight:700;">role</span>)</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 14px; background: var(--bg-main); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border);" id="access-checkboxes-container">
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: var(--text-main);">
+                            <input type="checkbox" id="perm-dashboard" value="dashboard" style="width:auto;margin:0;"> 
+                            <div><strong>Dashboard</strong> <span style="display:block;font-size:11px;color:var(--text-muted);margin-top:2px;">Overview of metrics, low stock warnings, and alerts</span></div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: var(--text-main);">
+                            <input type="checkbox" id="perm-drugs" value="drugs" style="width:auto;margin:0;"> 
+                            <div><strong>Search Medicines</strong> <span style="display:block;font-size:11px;color:var(--text-muted);margin-top:2px;">Look up drug listings, generic names, and shelf locations</span></div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: var(--text-main);">
+                            <input type="checkbox" id="perm-pos" value="pos" style="width:auto;margin:0;"> 
+                            <div><strong>Create Sale (POS)</strong> <span style="display:block;font-size:11px;color:var(--text-muted);margin-top:2px;">Access point of sale interface to process new orders</span></div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: var(--text-main);">
+                            <input type="checkbox" id="perm-prescriptions" value="prescriptions" style="width:auto;margin:0;"> 
+                            <div><strong>Prescriptions</strong> <span style="display:block;font-size:11px;color:var(--text-muted);margin-top:2px;">View patient prescription queue and upload requests</span></div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: var(--text-main);">
+                            <input type="checkbox" id="perm-customers" value="customers" style="width:auto;margin:0;"> 
+                            <div><strong>Customers</strong> <span style="display:block;font-size:11px;color:var(--text-muted);margin-top:2px;">Search and manage registered customer details</span></div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: var(--text-main);">
+                            <input type="checkbox" id="perm-my_sales" value="my_sales" style="width:auto;margin:0;"> 
+                            <div><strong>My Sales</strong> <span style="display:block;font-size:11px;color:var(--text-muted);margin-top:2px;">Check personal checkout logs and performance history</span></div>
+                        </label>
+                    </div>
+                    <div class="form-actions" style="margin-top: 24px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-manage-access')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Access Permissions</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Alert Dialog -->
     <div class="modal-overlay" id="modal-alert-dialog">
         <div class="modal-content cdialog-box">

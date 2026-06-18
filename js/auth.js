@@ -6,7 +6,7 @@ const AUTH_SESSION_KEY = 'phama_session';
 const AUTH_REMEMBER_KEY = 'phama_remember';
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 30;
-const DEFAULT_PASSWORDS = { admin: 'Admin@123', seller1: 'Seller@123', seller2: 'Seller@123' };
+const DEFAULT_PASSWORDS = { admin: 'Admin@123', seller1: 'Seller@123', seller2: 'Seller@123', monitor: 'Monitor@123' };
 
 // SHA-256 hash using Web Crypto API
 async function hashPassword(password) {
@@ -120,12 +120,12 @@ async function loginSeller(username, password, remember = false) {
     seller.lastLogin = new Date().toISOString();
     db.save();
 
-    const session = { userId: seller.id, userName: seller.fullName, role: 'seller', token: generateId('TK'), loginTime: new Date().toISOString() };
+    const session = { userId: seller.id, userName: seller.fullName, role: seller.role || 'seller', token: generateId('TK'), loginTime: new Date().toISOString() };
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
-    if (remember) localStorage.setItem(AUTH_REMEMBER_KEY, 'seller');
+    if (remember) localStorage.setItem(AUTH_REMEMBER_KEY, seller.role || 'seller');
 
-    db.logAudit(seller.id, seller.fullName, 'seller', 'Login', 'Seller login successful.');
+    db.logAudit(seller.id, seller.fullName, seller.role || 'seller', 'Login', 'Seller/Monitor login successful.');
     return { success: true, session };
 }
 
@@ -142,8 +142,13 @@ function getSession() {
 
 function requireAuth(expectedRole) {
     const session = getSession();
-    if (!session || session.role !== expectedRole) {
-        const target = expectedRole === 'admin' ? 'admin-login.html' : 'seller-login.html';
+    const isAuthorized = session && (
+        Array.isArray(expectedRole) 
+            ? expectedRole.includes(session.role) 
+            : session.role === expectedRole
+    );
+    if (!isAuthorized) {
+        const target = (expectedRole === 'admin' || (Array.isArray(expectedRole) && expectedRole.includes('admin') && !expectedRole.includes('seller'))) ? 'admin-login.html' : 'seller-login.html';
         window.location.href = target;
         return null;
     }

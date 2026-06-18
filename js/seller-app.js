@@ -387,15 +387,67 @@ document.addEventListener('DOMContentLoaded', async () => {
             const grandTotal = subtotal + totalTax;
             const saleId = 'SAL' + Date.now().toString(36).toUpperCase();
             items.forEach(i => i.saleId = saleId);
-            db.data.sales.push({ id: saleId, date: getRelativeDate(0), sellerId: session.userId, sellerName: session.userName, customerId, customerName, subtotal, tax: totalTax, discount: 0, grandTotal, paymentMethod, status: 'completed' });
+            const sale = { id: saleId, date: getRelativeDate(0), sellerId: session.userId, sellerName: session.userName, customerId, customerName, subtotal, tax: totalTax, discount: 0, grandTotal, paymentMethod, status: 'completed' };
+            const payment = { id: generateId('PAY'), saleId, amount: grandTotal, method: paymentMethod, date: getRelativeDate(0), reference: '' };
+
+            const s = db.data.settings;
+            const cur = s.currency;
+            document.getElementById('checkout-receipt-preview').innerHTML = `
+                <div class="receipt-header"><h3>${s.pharmacyName}</h3><p>${s.pharmacyAddress}<br>${s.pharmacyPhone}</p></div>
+                <div style="font-size:12px;margin-bottom:12px;text-align:left;color:var(--text-main);"><strong>Invoice:</strong> ${sale.id} (Proposed)<br><strong>Date:</strong> ${sale.date}<br><strong>Cashier:</strong> ${sale.sellerName}<br><strong>Customer:</strong> ${sale.customerName}</div>
+                <table class="receipt-table" style="width:100%;"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${items.map(i => `<tr><td>${i.drugName}</td><td>${i.quantity}</td><td>${cur}${i.unitPrice.toFixed(2)}</td><td>${cur}${i.total.toFixed(2)}</td></tr>`).join('')}</tbody></table>
+                <div class="receipt-totals" style="text-align:left;color:var(--text-main);"><div class="total-row"><span>Subtotal:</span><span>${cur}${sale.subtotal.toFixed(2)}</span></div><div class="total-row"><span>Tax:</span><span>${cur}${sale.tax.toFixed(2)}</span></div><div class="total-row grand"><span>TOTAL:</span><span>${cur}${sale.grandTotal.toFixed(2)}</span></div><div class="total-row"><span>Payment:</span><span>${sale.paymentMethod}</span></div></div>
+                <div class="receipt-footer">${s.receiptFooter}</div>
+            `;
+
+            const printBtn = document.getElementById('checkout-btn-print-save');
+            const saveBtn = document.getElementById('checkout-btn-save-only');
+
+            const newPrintBtn = printBtn.cloneNode(true);
+            const newSaveBtn = saveBtn.cloneNode(true);
+            printBtn.parentNode.replaceChild(newPrintBtn, printBtn);
+            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+
+            newPrintBtn.addEventListener('click', () => {
+                closeModal('modal-checkout-confirm');
+                this.finalizeCheckout(sale, items, payment, true);
+            });
+
+            newSaveBtn.addEventListener('click', () => {
+                closeModal('modal-checkout-confirm');
+                this.finalizeCheckout(sale, items, payment, false);
+            });
+
+            openModal('modal-checkout-confirm');
+        },
+
+        finalizeCheckout(sale, items, payment, printReceipt) {
+            db.data.sales.push(sale);
             db.data.sale_items.push(...items);
-            db.data.payments.push({ id: generateId('PAY'), saleId, amount: grandTotal, method: paymentMethod, date: getRelativeDate(0), reference: '' });
+            db.data.payments.push(payment);
             items.forEach(i => db.recalcStock(i.medicineId));
             db.save();
-            db.logAudit(session.userId, session.userName, 'seller', 'Sale Completed', `Invoice ${saleId} for ${customerName}. Total: ${db.data.settings.currency}${grandTotal.toFixed(2)}.`);
+            db.logAudit(session.userId, session.userName, 'seller', 'Sale Completed', `Invoice ${sale.id} for ${sale.customerName}. Total: ${db.data.settings.currency}${sale.grandTotal.toFixed(2)}.`);
             this.cart = [];
-            db.refreshNotifications(); this.drawNotifications();
-            showToast('Sale completed successfully!', 'success');
+            db.refreshNotifications(); 
+            this.drawNotifications();
+
+            if (printReceipt) {
+                const s = db.data.settings;
+                const cur = s.currency;
+                document.getElementById('print-receipt-content').innerHTML = `
+                    <div class="receipt-header"><h3>${s.pharmacyName}</h3><p>${s.pharmacyAddress}<br>${s.pharmacyPhone}</p></div>
+                    <div style="font-size:12px;margin-bottom:12px;"><strong>Invoice:</strong> ${sale.id}<br><strong>Date:</strong> ${sale.date}<br><strong>Cashier:</strong> ${sale.sellerName}<br><strong>Customer:</strong> ${sale.customerName}</div>
+                    <table class="receipt-table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${items.map(i => `<tr><td>${i.drugName}</td><td>${i.quantity}</td><td>${cur}${i.unitPrice.toFixed(2)}</td><td>${cur}${i.total.toFixed(2)}</td></tr>`).join('')}</tbody></table>
+                    <div class="receipt-totals"><div class="total-row"><span>Subtotal:</span><span>${cur}${sale.subtotal.toFixed(2)}</span></div><div class="total-row"><span>Tax:</span><span>${cur}${sale.tax.toFixed(2)}</span></div><div class="total-row grand"><span>TOTAL:</span><span>${cur}${sale.grandTotal.toFixed(2)}</span></div><div class="total-row"><span>Payment:</span><span>${sale.paymentMethod}</span></div></div>
+                    <div class="receipt-footer">${s.receiptFooter}</div>
+                `;
+                openModal('modal-receipt-print');
+                setTimeout(() => { window.print(); }, 500);
+            } else {
+                showToast('Sale completed and saved successfully!', 'success');
+            }
+            this.renderView();
         },
 
         showReceipt(saleId) {

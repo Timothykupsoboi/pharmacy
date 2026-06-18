@@ -24,7 +24,8 @@ const DEFAULT_DB = {
         { id: 'ADM001', username: 'admin', passwordHash: '', fullName: 'System Administrator', email: 'admin@edocpharmacy.com', phone: '', active: true, failedAttempts: 0, lockedUntil: null, lastLogin: null, createdAt: getRelativeDate(-90) }
     ],
     sellers: [
-        { id: 'SEL001', username: 'seller1', passwordHash: '', fullName: 'John Kimani', email: 'john.k@edocpharmacy.com', phone: '', active: true, failedAttempts: 0, lockedUntil: null, lastLogin: null, createdAt: getRelativeDate(-60) }
+        { id: 'SEL001', username: 'seller1', passwordHash: '', fullName: 'John Kimani', email: 'john.k@edocpharmacy.com', phone: '', active: true, role: 'seller', permissions: ['dashboard', 'drugs', 'pos', 'prescriptions', 'customers', 'my_sales'], failedAttempts: 0, lockedUntil: null, lastLogin: null, createdAt: getRelativeDate(-60) },
+        { id: 'MON001', username: 'monitor', passwordHash: '', fullName: 'System Monitor', email: 'monitor@edocpharmacy.com', phone: '', active: true, role: 'monitor', permissions: ['dashboard', 'drugs', 'prescriptions', 'customers', 'my_sales'], failedAttempts: 0, lockedUntil: null, lastLogin: null, createdAt: getRelativeDate(-30) }
     ],
     medicine_categories: ['Analgesics','Antibiotics','Cardiovascular','Antidiabetic','Respiratory'],
     medicines: [

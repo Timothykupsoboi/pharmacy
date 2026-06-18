@@ -80,7 +80,7 @@
             await Auth.seedPasswords();
 
             const session = Auth.getSession();
-            if (session && session.role === 'seller') {
+            if (session && (session.role === 'seller' || session.role === 'monitor')) {
                 window.location.href = 'seller.html';
                 return;
             }
