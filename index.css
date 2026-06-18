@@ -11,7 +11,9 @@
     /* Light theme */
     --bg-main: #f1f5f9;
     --bg-card: #ffffff;
-    --bg-sidebar: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    --bg-sidebar: #ffffff;
+    --sidebar-text: #1e293b;
+    --sidebar-muted: #64748b;
     --text-main: #1e293b;
     --text-muted: #64748b;
     --text-white: #ffffff;
@@ -40,13 +42,15 @@
     --radius-md: 12px;
     --radius-lg: 16px;
     --transition: all 0.2s ease;
-    --sidebar-width: 260px;
+    --sidebar-width: 220px;
 }
 
 [data-theme="dark"] {
     --bg-main: #0f172a;
     --bg-card: #1e293b;
     --bg-sidebar: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+    --sidebar-text: #e2e8f0;
+    --sidebar-muted: #94a3b8;
     --text-main: #e2e8f0;
     --text-muted: #94a3b8;
     --border: #334155;
@@ -72,6 +76,7 @@ body {
     color: var(--text-main);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    font-size: 13px;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -602,13 +607,13 @@ body {
 }
 
 .profile-name {
-    color: #f1f5f9;
+    color: var(--sidebar-text);
     font-size: 15px;
     font-weight: 700;
 }
 
 .profile-email {
-    color: #64748b;
+    color: var(--sidebar-muted);
     font-size: 12px;
     margin-top: 2px;
 }
@@ -662,17 +667,17 @@ body {
     gap: 12px;
     padding: 10px 14px;
     border-radius: var(--radius-sm);
-    color: #94a3b8;
+    color: var(--sidebar-muted);
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
 }
 
-.nav-link:hover { background: rgba(148, 163, 184, 0.08); color: #e2e8f0; }
-.nav-link.active { background: rgba(37, 99, 235, 0.15); color: #60a5fa; font-weight: 600; }
-.nav-link svg { width: 20px; height: 20px; flex-shrink: 0; }
+.nav-link:hover { background: rgba(148, 163, 184, 0.08); color: var(--sidebar-text); }
+.nav-link.active { background: rgba(37, 99, 235, 0.10); color: var(--primary-light); border-right: 3px solid var(--primary-light); font-weight: 700; }
+.nav-link svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* Header */
 .header {

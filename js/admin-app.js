@@ -209,64 +209,98 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             c.innerHTML = `
-                <div class="page-header"><div class="page-title"><h2>Admin Dashboard</h2><p>Overview of pharmacy operations and financials.</p></div></div>
-                <div class="kpi-grid">
-                    ${this.kpiCard('Total Medicines', db.data.medicines.length, 'primary', 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z')}
-                    ${this.kpiCard('Inventory Value', db.data.settings.currency + inventoryValue.toFixed(2), 'purple', 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4')}
-                    ${this.kpiCard("Today's Revenue", db.data.settings.currency + revenueToday.toFixed(2), 'success', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z')}
-                    ${this.kpiCard('Monthly Revenue', db.data.settings.currency + monthlyRevenue.toFixed(2), 'accent', 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z')}
-                    ${this.kpiCard('Monthly Profit', db.data.settings.currency + monthlyProfit.toFixed(2), 'success', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6')}
-                    ${this.kpiCard('Customers', db.data.customers.length, 'purple', 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z')}
-                    ${this.kpiCard('Suppliers', db.data.suppliers.length, 'primary', 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5')}
-                    ${this.kpiCard('Active Sellers', db.data.sellers.filter(s => s.active).length, 'accent', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z')}
-                    ${this.kpiCard('Low Stock', lowStock, 'warning', 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z')}
-                    ${this.kpiCard('Expired', expired, 'critical', 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z')}
+                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="font-weight: 800; color: var(--text-main); font-size: 20px;">Integrated Command Center</h2>
+                        <p style="color: var(--text-muted); font-size: 13px;">Full operational oversight of hospital departments.</p>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
+                        ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} <br> ${new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})}
+                    </div>
                 </div>
-                <div class="charts-grid">
-                    <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Revenue (30 Days)</h3></div><div class="chart-container"><canvas id="chart-revenue"></canvas></div></div>
-                    <div class="chart-card"><div class="chart-header"><h3 class="chart-title">Top Sellers</h3></div><div id="top-sellers-list" style="margin-top:10px;"></div></div>
+
+                <div style="background: url('img/banner.png') center/cover; border-radius: 20px; padding: 40px; color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(30,41,59,0.9) 0%, rgba(30,41,59,0.4) 100%);"></div>
+                    <div style="position: relative; z-index: 1;">
+                        <h1 style="font-size: 32px; margin-bottom: 10px; font-weight: 800;">Good Morning,<br><span style="color: #60a5fa;">System Administrator Oversight</span></h1>
+                        <p style="font-size: 15px; opacity: 0.9; margin-bottom: 20px;">You are currently monitoring <strong style="color: #60a5fa;">${salesToday.length}</strong> clinical sessions and <strong style="color: #60a5fa;">5</strong> pending laboratory requests.</p>
+                        <div style="display: flex; gap: 15px;">
+                            <button class="btn btn-primary" style="background: #3b82f6; border: none; font-weight: 700; border-radius: 12px;" onclick="App.currentView='sales';App.renderView();">$ Financial Reports</button>
+                            <button class="btn btn-secondary" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); font-weight: 700; border-radius: 12px;" onclick="App.currentView='settings';App.renderView();">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; display: inline; vertical-align: middle; margin-right: 5px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                Staff Directory
+                            </button>
+                        </div>
+                    </div>
+                    <div style="position: relative; z-index: 1; text-align: right; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); padding: 20px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size: 36px; font-weight: 800; display: flex; align-items: center; justify-content: flex-end; gap: 10px; line-height: 1;">
+                            24°C <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 36px; opacity: 0.8;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px; margin-top: 5px;">Partly Cloudy</div>
+                        <div style="font-size: 13px; font-weight: 600;">Nairobi HQ, Command Center</div>
+                    </div>
                 </div>
-                <div class="layout-columns">
-                    <div class="panel-card"><div class="panel-header"><h3 class="panel-title">Fast Moving Drugs</h3></div><div class="table-responsive"><table class="custom-table"><thead><tr><th>Drug</th><th>Units Sold</th></tr></thead><tbody id="fast-drugs-tbody"></tbody></table></div></div>
-                    <div class="panel-card"><div class="panel-header"><h3 class="panel-title">Expiry Alerts</h3></div><div class="table-responsive"><table class="custom-table"><thead><tr><th>Drug</th><th>Status</th></tr></thead><tbody id="expiry-tbody"></tbody></table></div></div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; flex-direction: column;">
+                        <div style="color: #3b82f6; margin-bottom: 15px; background: rgba(59, 130, 246, 0.1); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; line-height: 1;">${salesToday.length}</div>
+                        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">CLINICAL VOLUME</div>
+                    </div>
+                    
+                    <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; flex-direction: column;">
+                        <div style="color: #d946ef; margin-bottom: 15px; background: rgba(217, 70, 239, 0.1); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; line-height: 1;">5</div>
+                        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">PENDING LABS</div>
+                    </div>
+
+                    <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; flex-direction: column;">
+                        <div style="color: #f59e0b; margin-bottom: 15px; background: rgba(245, 158, 11, 0.1); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; line-height: 1;">${lowStock}</div>
+                        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">LOW STOCK DRUGS</div>
+                    </div>
+
+                    <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; flex-direction: column;">
+                        <div style="color: #10b981; margin-bottom: 15px; background: rgba(16, 185, 129, 0.1); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; line-height: 1;">${db.data.sellers.filter(s => s.active).length}</div>
+                        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">ACTIVE STAFF</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); min-height: 300px; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #3b82f6; font-weight: 700;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            Recent Operational Pulse
+                        </div>
+                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted);">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.2; margin-bottom: 10px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            <p style="font-size: 13px;">Real-time clinical and lab activity logs will appear here.</p>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #f59e0b; font-weight: 700;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                            Critical Stock Alerts
+                        </div>
+                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted);">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.2; margin-bottom: 10px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                            <p style="font-size: 13px;">${lowStock} items require immediate procurement.</p>
+                        </div>
+                    </div>
                 </div>
             `;
-
-            // Revenue chart
-            const chartData = {};
-            for (let i = 29; i >= 0; i--) chartData[getRelativeDate(-i)] = 0;
-            monthlySales.forEach(s => { if (chartData[s.date] !== undefined) chartData[s.date] += s.grandTotal; });
-            const ctx = document.getElementById('chart-revenue').getContext('2d');
-            this.charts.push(new Chart(ctx, {
-                type: 'line',
-                data: { labels: Object.keys(chartData).map(d => d.slice(5)), datasets: [{ label: 'Revenue', data: Object.values(chartData), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.1)' } }, x: { grid: { display: false } } } }
-            }));
-
-            // Top sellers
-            const sellerSales = {};
-            db.data.sales.forEach(s => { sellerSales[s.sellerName] = (sellerSales[s.sellerName] || 0) + s.grandTotal; });
-            const topList = document.getElementById('top-sellers-list');
-            Object.entries(sellerSales).sort((a, b) => b[1] - a[1]).forEach(([name, total]) => {
-                topList.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border);"><span style="font-weight:600;">${name}</span><span style="font-weight:700;color:var(--primary-light);">${db.data.settings.currency}${total.toFixed(2)}</span></div>`;
-            });
-
-            // Fast moving
-            const drugSales = {};
-            db.data.sale_items.forEach(si => { drugSales[si.drugName] = (drugSales[si.drugName] || 0) + si.quantity; });
-            const fastTbody = document.getElementById('fast-drugs-tbody');
-            Object.entries(drugSales).sort((a, b) => b[1] - a[1]).slice(0, 5).forEach(([name, qty]) => {
-                fastTbody.innerHTML += `<tr><td><strong>${name}</strong></td><td><span class="badge badge-success">${qty} units</span></td></tr>`;
-            });
-            if (!fastTbody.innerHTML) fastTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">No sales data.</td></tr>';
-
-            // Expiry alerts
-            const expTbody = document.getElementById('expiry-tbody');
-            db.data.medicines.filter(m => db.getExpiryStatus(m.expiryDate).level <= 2).sort((a, b) => db.getExpiryStatus(a.expiryDate).daysLeft - db.getExpiryStatus(b.expiryDate).daysLeft).slice(0, 5).forEach(m => {
-                const e = db.getExpiryStatus(m.expiryDate);
-                expTbody.innerHTML += `<tr class="${e.level === 0 ? 'critical-row' : e.level === 1 ? 'warning-row' : ''}"><td><strong>${m.drugName}</strong></td><td><span class="badge badge-${e.cls === 'critical' ? 'critical' : 'warning'}">${e.label}</span></td></tr>`;
-            });
-            if (!expTbody.innerHTML) expTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">No alerts.</td></tr>';
+            
+            // The chart initialization block has been removed as the canvas elements are replaced by the new layout.
         },
 
         kpiCard(title, value, color, icon) {
